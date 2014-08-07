@@ -167,6 +167,14 @@ module.exports.start = function( io ){
 
 			socket.leave( room );
 		});
+
+		/**
+		 * on drawing
+		 */
+		socket.on('draw', function(drawData) {
+			console.log(drawData);
+			io.sockets.in( user.room_id ).emit('draw', drawData);
+		});
 	});
 };
 
