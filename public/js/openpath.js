@@ -16,7 +16,7 @@ OpenPath = {
 		
 		//configs
 		this.peerKey = 'w8hlftc242jzto6r';
-		this.socketConnection = 'https://localhost:3030';
+		this.socketConnection = 'http://localhost:8080';
 		// 'http://10.0.1.9:8080'; 
 		// 'http://localhost:8080'; 
 		// 'http://10.0.1.15:8080';
@@ -59,6 +59,55 @@ OpenPath = {
 
 		this.leaveRoomBtn = document.getElementById("leaveRoomBtn");
 		this.fullScreenBtn = document.getElementById("fullScreenBtn");
+
+		// Canvas drawing
+		this.canvas = document.getElementById('canvas');
+		this.context = canvas.getContext('2d');
+		this.px = -1;
+		this.py = -1;
+		this.x = -1;
+		this.y = -1;
+		this.mousedown = false;
+
+		this.color = "rgb("+
+			  Math.floor(Math.random()*128+127)+","+
+			  Math.floor(Math.random()*128+127)+","+
+			  Math.floor(Math.random()*128+127)+")";
+
+		// Should only be enabled if admin
+		this.canvas.addEventListener('mousedown', function(evt) {
+			// Get the canvas bounding rect
+			var canvasRect = canvas.getBoundingClientRect(); 
+
+			// Now calculate the mouse position values
+			this.py = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
+			this.px = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
+			this.mousedown = true;				
+		}, false);
+				
+		this.canvas.addEventListener('mouseup', function(evt) {
+			this.mousedown = false;
+		}, false);
+				
+		this.canvas.addEventListener('mousemove', function(evt) {
+			//evt.clientX is x but in the entire window, not the canvas
+			//evt.clientY is y
+	
+			// Get the canvas bounding rect
+			var canvasRect = canvas.getBoundingClientRect(); 
+
+			// Now calculate the mouse position values
+			y = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
+			x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
+
+			if (this.mousedown) {
+                                self.socket.emit('draw', {this.px, this.py, this.x, this.y, this.color);
+				
+				this.draw(px, py, x, y);
+				this.px = this.x;
+				this.py = this.y;
+			}
+		}, false);
 		
 	},
 	/**
@@ -138,7 +187,7 @@ OpenPath = {
 		//peer & socket
 		this.call = null;
 		this.peer = new Peer({key: this.peerKey, secure: true }), //TODO: out own peer server? //OpenPath.rtc.server= "ws://www.openpath.me:8001/";
-		this.socket = io.connect(this.socketConnection, {secure: true} );
+		this.socket = io.connect(this.socketConnection, {secure: false} );
 		this.peer_connection = null;
 
 
@@ -248,6 +297,14 @@ OpenPath = {
 			console.log('received disconnect', aPeer, connected_users ,self.peers);
 			self.findOthersInRoom(connected_users);
 			self.removePeer(aPeer);
+		});
+
+		/**
+		 * receive draw event
+		 */
+		this.socket.on('draw', function (drawingData) {
+			console.log('received draw');
+			self.draw(drawingData.startX, drawingData.startY, drawingData.endX, drawingData.endY, drawingData.color);
 		});
 	},
 	/**
@@ -407,6 +464,15 @@ OpenPath = {
 		//remove from array
 		this.peers.splice(peer_index,1);
 		console.log('peers',this.peers)
+	},
+	draw : function(drawingData){
+		console.log('calling draw function');
+		context.beginPath();
+		context.strokeStyle=color;
+		context.moveTo(startX,startY);
+		context.lineWidth = 5;
+		context.lineTo(endX,endY);
+		context.stroke();
 	}
 };
 
