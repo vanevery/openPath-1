@@ -63,6 +63,7 @@ OpenPath = {
 		// Canvas drawing
 		this.canvas = document.getElementById('canvas');
 		this.context = canvas.getContext('2d');
+		window.alert(this.canvas);
 		this.px = -1;
 		this.py = -1;
 		this.x = -1;
@@ -101,8 +102,7 @@ OpenPath = {
 			x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
 
 			if (this.mousedown) {
-                                self.socket.emit('draw', {this.px, this.py, this.x, this.y, this.color);
-				
+                                self.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
 				this.draw(px, py, x, y);
 				this.px = this.x;
 				this.py = this.y;
