@@ -98,12 +98,12 @@ OpenPath = {
 			var canvasRect = canvas.getBoundingClientRect(); 
 
 			// Now calculate the mouse position values
-			y = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
-			x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
+			this.y = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
+			this.x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
 
 			if (this.mousedown) {
-                                self.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
-				this.draw(px, py, x, y);
+                                this.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
+				this.draw(this.px, this.py, this.x, this.y);
 				this.px = this.x;
 				this.py = this.y;
 			}
