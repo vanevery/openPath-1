@@ -70,45 +70,13 @@ OpenPath = {
 		this.y = -1;
 		this.mousedown = false;
 
-		this.color = "rgb("+
+		/*this.color = "rgb("+
 			  Math.floor(Math.random()*128+127)+","+
 			  Math.floor(Math.random()*128+127)+","+
 			  Math.floor(Math.random()*128+127)+")";
-
-		// Should only be enabled if admin
-		this.canvas.addEventListener('mousedown', function(evt) {
-			// Get the canvas bounding rect
-			var canvasRect = canvas.getBoundingClientRect(); 
-
-			// Now calculate the mouse position values
-			this.py = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
-			this.px = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
-			this.mousedown = true;				
-		}, false);
-				
-		this.canvas.addEventListener('mouseup', function(evt) {
-			this.mousedown = false;
-		}, false);
-				
-		this.canvas.addEventListener('mousemove', function(evt) {
-			//evt.clientX is x but in the entire window, not the canvas
-			//evt.clientY is y
-	
-			// Get the canvas bounding rect
-			var canvasRect = canvas.getBoundingClientRect(); 
-
-			// Now calculate the mouse position values
-			this.y = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
-			this.x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
-
-			if (this.mousedown) {
-                                this.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
-				this.draw(this.px, this.py, this.x, this.y);
-				this.px = this.x;
-				this.py = this.y;
-			}
-		}, false);
+		*/
 		
+		this.color = rgb(255,255,255);
 	},
 	/**
 	 * once allowed video
@@ -126,6 +94,44 @@ OpenPath = {
 	},
 	events : function(){
 		var self = this;
+		
+		// Should only be enabled if admin
+		this.canvas.addEventListener('mousedown', function(evt) {
+		
+			// Get the canvas bounding rect
+			var canvasRect = canvas.getBoundingClientRect(); 
+
+			// Now calculate the mouse position values
+			this.py = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
+			this.px = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
+			this.mousedown = true;				
+		}, false);
+				
+		this.canvas.addEventListener('mouseup', function(evt) {
+			this.mousedown = false;
+		}, false);
+				
+		this.canvas.addEventListener('mousemove', function(evt) {
+			
+			//evt.clientX is x but in the entire window, not the canvas
+			//evt.clientY is y
+	
+			// Get the canvas bounding rect
+			var canvasRect = canvas.getBoundingClientRect(); 
+
+			// Now calculate the mouse position values
+			this.y = evt.clientY - canvasRect.top; // minus the starting point of the canvas rect
+			this.x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
+
+			if (this.mousedown == true) {
+                self.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
+				self.draw(this.px, this.py, this.x, this.y);
+				this.px = this.x;
+				this.py = this.y;
+			}
+		}, false);		
+		
+		
 		/*chat toggle event*/
 		this.chatheader.addEventListener('click',function(){
 			if(self.chat.classList.contains('open')){
@@ -183,15 +189,11 @@ OpenPath = {
 	connect : function(){
 		var self = this;
 
-
 		//peer & socket
 		this.call = null;
 		this.peer = new Peer({key: this.peerKey, secure: true }), //TODO: out own peer server? //OpenPath.rtc.server= "ws://www.openpath.me:8001/";
 		this.socket = io.connect(this.socketConnection, {secure: false} );
 		this.peer_connection = null;
-
-
-
 
 		/**
 		 * socket connect
@@ -467,12 +469,12 @@ OpenPath = {
 	},
 	draw : function(drawingData){
 		console.log('calling draw function');
-		context.beginPath();
-		context.strokeStyle=color;
-		context.moveTo(startX,startY);
-		context.lineWidth = 5;
-		context.lineTo(endX,endY);
-		context.stroke();
+		this.context.beginPath();
+		this.context.strokeStyle=drawingData.color;
+		this.context.moveTo(drawingData.startX,drawingData.startY);
+		this.context.lineWidth = 5;
+		this.context.lineTo(drawingData.endX,drawingData.endY);
+		this.context.stroke();
 	}
 };
 
