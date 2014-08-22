@@ -124,7 +124,7 @@ OpenPath = {
 			this.x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
 
 			if (this.mousedown == true) {
-                self.socket.emit('draw', {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
+                self.socket.emit('draw', self.user.obj, {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
 				self.draw(this.px, this.py, this.x, this.y);
 				this.px = this.x;
 				this.py = this.y;
