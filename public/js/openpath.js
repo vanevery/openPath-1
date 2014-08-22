@@ -76,7 +76,7 @@ OpenPath = {
 			  Math.floor(Math.random()*128+127)+")";
 		*/
 		
-		this.color = rgb(255,255,255);
+		this.color = "rgb(128,128,128)";
 	},
 	/**
 	 * once allowed video
@@ -124,8 +124,9 @@ OpenPath = {
 			this.x = evt.clientX - canvasRect.left;  // minus the starting point of the canvas rect on the x axis
 
 			if (this.mousedown == true) {
-                self.socket.emit('draw', self.user.obj, {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: this.color});
-				self.draw(this.px, this.py, this.x, this.y);
+				var drawingObject = {startX: this.px, startY: this.py, endX: this.x, endY: this.y, color: self.color};
+                self.socket.emit('draw', self.user.obj, drawingObject);
+				self.draw(drawingObject);
 				this.px = this.x;
 				this.py = this.y;
 			}
@@ -306,7 +307,7 @@ OpenPath = {
 		 */
 		this.socket.on('draw', function (drawingData) {
 			console.log('received draw');
-			self.draw(drawingData.startX, drawingData.startY, drawingData.endX, drawingData.endY, drawingData.color);
+			self.draw(drawingData);
 		});
 	},
 	/**
@@ -468,7 +469,7 @@ OpenPath = {
 		console.log('peers',this.peers)
 	},
 	draw : function(drawingData){
-		console.log('calling draw function');
+		console.log('calling draw function ' + drawingData.startX + " " + drawingData.startY + " " + drawingData.endX + " " + drawingData.endY + " " + drawingData.color);		
 		this.context.beginPath();
 		this.context.strokeStyle=drawingData.color;
 		this.context.moveTo(drawingData.startX,drawingData.startY);
